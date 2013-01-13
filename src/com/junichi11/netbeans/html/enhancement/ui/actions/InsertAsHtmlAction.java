@@ -45,12 +45,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
+import org.netbeans.modules.editor.indent.api.Reformat;
 import org.netbeans.modules.parsing.api.Source;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -77,29 +81,59 @@ public final class InsertAsHtmlAction implements ActionListener {
     private static final String SLASH = "/"; // NOI18N
     private static final String PARENT = "../"; // NOI18N
     private static final String IMG_TAG_FORMAT = "<img src=\"%s\" width=\"%s\" height=\"%s\"/>"; // NOI18N
-    private final DataObject context;
+    private final List<DataObject> contexts;
+    private static final Set<String> IMG_MIME_TYPES = new HashSet<String>();
 
-    public InsertAsHtmlAction(DataObject context) {
-        this.context = context;
+    static {
+        IMG_MIME_TYPES.add("image/png"); // NOI18N
+        IMG_MIME_TYPES.add("image/jpeg"); // NOI18N
+        IMG_MIME_TYPES.add("image/gif"); // NOI18N
+        IMG_MIME_TYPES.add("image/bmp"); // NOI18N
+    }
+
+    public InsertAsHtmlAction(List<DataObject> context) {
+        this.contexts = context;
     }
 
     @Override
     public void actionPerformed(ActionEvent ev) {
-        FileObject imageFile = context.getPrimaryFile();
-        if (imageFile == null) {
+        JTextComponent editor = getEditor();
+        if (editor == null) {
             return;
         }
-        JTextComponent editor = getEditor();
-        if (editor != null) {
-            Document document = editor.getDocument();
-            Caret caret = editor.getCaret();
-            try {
-                document.insertString(caret.getDot(), createImgTag(imageFile), null);
-            } catch (BadLocationException ex) {
-                Exceptions.printStackTrace(ex);
-            }
 
+        StringBuilder sb = new StringBuilder();
+        boolean isMulti = false;
+        for (DataObject context : contexts) {
+            FileObject imageFile = context.getPrimaryFile();
+            if (imageFile == null) {
+                return;
+            }
+            if (!isImage(imageFile)) {
+                continue;
+            }
+            if (isMulti) {
+                sb.append("\n"); // NOI18N
+            }
+            sb.append(createImgTag(imageFile));
+            isMulti = true;
         }
+        Document document = editor.getDocument();
+        String imgTag = sb.toString();
+        Caret caret = editor.getCaret();
+        int offset = caret.getDot();
+
+        try {
+            document.insertString(offset, imgTag, null);
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        int stringCount = imgTag.length();
+        if (stringCount == 0) {
+            return;
+        }
+        reformat(document, offset, offset + stringCount);
     }
 
     /**
@@ -198,5 +232,36 @@ public final class InsertAsHtmlAction implements ActionListener {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Chekck whether file is image
+     *
+     * @param image
+     * @return
+     */
+    private boolean isImage(FileObject image) {
+        String mimeType = image.getMIMEType();
+        return IMG_MIME_TYPES.contains(mimeType);
+    }
+
+    /**
+     * Reformat
+     *
+     * @param document
+     * @param start
+     * @param end
+     */
+    private void reformat(Document document, int start, int end) {
+        // reformat
+        Reformat reformat = Reformat.get(document);
+        reformat.lock();
+        try {
+            reformat.reformat(start, end);
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            reformat.unlock();
+        }
     }
 }
