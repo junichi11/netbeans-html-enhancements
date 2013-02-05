@@ -5,6 +5,7 @@ This is NetBeans Plugin
 
 - width and height completion for img tag
 - insert as HTML action
+- update image size action
 
 ### Width And Height Completion for img Tag
 You must write src attribute before with and height attributes.
@@ -26,6 +27,11 @@ Support for multiple image files.
 <img src="../../../assets/img/pic1.png" width="100" height="200"/>
 <img src="../../../assets/img/pic2.png" width="100" height="200"/>
 ```
+
+### Update Image Size Action
+You can update/insert image size(width/height) of img tag.  
+This feature is not available as default. So you have to set shortcut key to KeyMap.  
+Please search "Update" on KeyMap Option(Tools > Options > KeyMap)
 
 ## License
 [Common Development and Distribution License (CDDL) v1.0 and GNU General Public License (GPL) v2](http://netbeans.org/cddl-gplv2.html)
