@@ -76,12 +76,12 @@ public class EditorSupport {
 
         // start position
         while (start - 1 > 0) {
+            if (doc.getText(start, offset - start).startsWith("<img")) { // NOI18N
+                break;
+            }
             String text = doc.getText(start - 1, 1);
             if (text.equals("\n") || text.equals(">")) { // NOI18N
                 return null;
-            }
-            if (doc.getText(start, offset - start).startsWith("<img")) { // NOI18N
-                break;
             }
             start--;
         }
