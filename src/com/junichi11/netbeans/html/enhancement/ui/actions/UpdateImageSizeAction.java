@@ -53,6 +53,7 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.editor.EditorRegistry;
 import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.cookies.EditorCookie;
 import org.openide.util.Exceptions;
@@ -63,6 +64,7 @@ import org.openide.util.NbBundle.Messages;
         id = "com.junichi11.netbeans.html.enhancement.ui.actions.UpdateImageSizeAction")
 @ActionRegistration(
         displayName = "#CTL_UpdateImageSizeAction")
+@ActionReference(path = "Shortcuts", name = "AD-U")
 @Messages("CTL_UpdateImageSizeAction=Update Image Size")
 public final class UpdateImageSizeAction implements ActionListener {
 
