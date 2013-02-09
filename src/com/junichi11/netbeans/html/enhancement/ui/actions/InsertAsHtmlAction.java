@@ -68,9 +68,8 @@ import org.openide.util.NbBundle.Messages;
 
 @ActionID(
     category = "Edit",
-id = "com.junichi11.netbeans.html.enhancement.ui.actions.InsertAsHtmlAction")
-@ActionRegistration(
-    displayName = "#CTL_InsertAsHtmlAction")
+    id = "com.junichi11.netbeans.html.enhancement.ui.actions.InsertAsHtmlAction")
+@ActionRegistration(displayName = "#CTL_InsertAsHtmlAction")
 @ActionReferences({
     @ActionReference(path = "Menu/Edit", position = 1470),
     @ActionReference(path = "Loaders/image/png-gif-jpeg-bmp/Actions", position = 150)
@@ -80,7 +79,7 @@ public final class InsertAsHtmlAction implements ActionListener {
 
     private static final String SLASH = "/"; // NOI18N
     private static final String PARENT = "../"; // NOI18N
-    private static final String IMG_TAG_FORMAT = "<img src=\"%s\" width=\"%s\" height=\"%s\"/>"; // NOI18N
+    private static final String IMG_TAG_FORMAT = "<img src=\"%s\" alt=\"\" width=\"%s\" height=\"%s\"/>"; // NOI18N
     private final List<DataObject> contexts;
     private static final Set<String> IMG_MIME_TYPES = new HashSet<String>();
 
