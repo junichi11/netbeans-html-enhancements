@@ -48,6 +48,8 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.editor.mimelookup.MimeRegistration;
+import org.netbeans.api.editor.mimelookup.MimeRegistrations;
 import org.netbeans.api.html.lexer.HTMLTokenId;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -67,6 +69,10 @@ import org.openide.util.Exceptions;
  *
  * @author junichi11
  */
+@MimeRegistrations({
+    @MimeRegistration(mimeType = "text/html", service = CompletionProvider.class),
+    @MimeRegistration(mimeType = "text/x-php5", service = CompletionProvider.class)
+})
 public class ImageCompletionProvider implements CompletionProvider {
 
     @Override
