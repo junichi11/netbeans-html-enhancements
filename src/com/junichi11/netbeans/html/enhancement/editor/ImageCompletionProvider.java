@@ -184,6 +184,7 @@ public class ImageCompletionProvider implements CompletionProvider {
      * @param caretOffset
      * @return
      */
+    @SuppressWarnings("unchecked")
     protected TokenSequence<HTMLTokenId> getTokenSequence(Document doc, int caretOffset) {
         TokenHierarchy hierarchy = TokenHierarchy.get(doc);
         TokenSequence<HTMLTokenId> ts = hierarchy.tokenSequence(HTMLTokenId.language());
