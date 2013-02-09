@@ -30,8 +30,8 @@ Support for multiple image files.
 
 ### Update Image Size Action
 You can update/insert image size(width/height) of img tag.  
-This feature is not available as default. So you have to set shortcut key to KeyMap.  
-Please search "Update" on KeyMap Option(Tools > Options > KeyMap)
+Default shortcut is `Ctrl + Alt + U`  
+If you would like to change shortcut, Please search "Update" on KeyMap Option(Tools > Options > KeyMap)
 
 ## License
 [Common Development and Distribution License (CDDL) v1.0 and GNU General Public License (GPL) v2](http://netbeans.org/cddl-gplv2.html)
