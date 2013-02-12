@@ -45,7 +45,10 @@ import java.awt.Image;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
@@ -75,6 +78,8 @@ import org.openide.util.Exceptions;
 })
 public class ImageCompletionProvider implements CompletionProvider {
 
+    private static final Logger LOGGER = Logger.getLogger(ImageCompletionProvider.class.getName());
+
     @Override
     public CompletionTask createTask(int queryType, JTextComponent component) {
         if (queryType != CompletionProvider.COMPLETION_QUERY_TYPE) {
@@ -83,91 +88,98 @@ public class ImageCompletionProvider implements CompletionProvider {
         return new AsyncCompletionTask(new AsyncCompletionQuery() {
             @Override
             protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
-                TokenSequence<HTMLTokenId> ts = getTokenSequence(doc, caretOffset);
-                if (ts == null) {
-                    resultSet.finish();
-                    return;
-                }
-                ts.move(caretOffset);
-                ts.moveNext();
-                ts.movePrevious();
-                ts.movePrevious();
-                Token token = ts.token();
-                CharSequence tokenText = token.text();
-                boolean isWidth = isWidth(tokenText);
-                boolean isHeight = isHeight(tokenText);
-                if (token.id() != HTMLTokenId.ARGUMENT) {
-                    resultSet.finish();
-                    return;
-                }
-                if (!isWidth && !isHeight) {
-                    resultSet.finish();
-                    return;
-                }
-                while (ts.movePrevious()) {
-                    Token t = ts.token();
-                    if (TokenUtilities.equals(t.text(), "src")) { // NOI18N
-                        break;
-                    }
-                    if (t.id() == HTMLTokenId.TAG_OPEN) {
-                        resultSet.finish();
+                AbstractDocument ad = (AbstractDocument) doc;
+                ad.readLock();
+                try {
+                    // get token sequence
+                    TokenSequence<HTMLTokenId> ts = getTokenSequence(doc, caretOffset);
+                    if (ts == null) {
                         return;
                     }
-                }
-                ts.moveNext();
-                ts.moveNext();
-                token = ts.token();
-                CharSequence text = token.text();
-                if (TokenUtilities.equals(text, "\"\"")) { // NOI18N
-                    resultSet.finish();
-                    return;
-                }
+                    ts.move(caretOffset);
+                    ts.moveNext(); // current
+                    ts.movePrevious(); // =?
+                    ts.movePrevious(); // attribute?
 
-                Source source = Source.create(doc);
-                FileObject currentFile = source.getFileObject();
-                String imagePath = normalizeImagePath(text.toString());
-                Image image = null;
-
-                // URL
-                if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) { // NOI18N
-                    try {
-                        URL imageUrl = new URL(imagePath);
-                        image = ImageIO.read(imageUrl);
-                    } catch (MalformedURLException ex) {
-                        Exceptions.printStackTrace(ex);
-                    } catch (IOException ex) {
-                        resultSet.finish();
+                    // check whether attribute is width or height
+                    Token token = ts.token();
+                    CharSequence tokenText = token.text();
+                    boolean isWidth = isWidth(tokenText);
+                    boolean isHeight = isHeight(tokenText);
+                    if (token.id() != HTMLTokenId.ARGUMENT) {
                         return;
                     }
-                }
-
-                // Path
-                if (image == null && !imagePath.isEmpty()) {
-                    FileObject imageFile = currentFile.getFileObject(imagePath);
-                    if (imageFile == null) {
-                        resultSet.finish();
+                    if (!isWidth && !isHeight) {
                         return;
                     }
-                    try {
-                        image = ImageIO.read(imageFile.getInputStream());
-                    } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
+
+                    // search "src"
+                    while (ts.movePrevious()) {
+                        Token t = ts.token();
+                        if (TokenUtilities.equals(t.text(), "src")) { // NOI18N
+                            break;
+                        }
+                        if (t.id() == HTMLTokenId.TAG_OPEN) {
+                            return;
+                        }
                     }
-                }
-                if (image == null) {
+                    ts.moveNext();
+                    ts.moveNext();
+                    token = ts.token();
+                    CharSequence text = token.text();
+                    if (TokenUtilities.equals(text, "\"\"")) { // NOI18N
+                        return;
+                    }
+
+                    // img src
+                    String imagePath = normalizeImagePath(text.toString());
+                    Image image = null;
+
+                    // URL
+                    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) { // NOI18N
+                        try {
+                            URL imageUrl = new URL(imagePath);
+                            image = ImageIO.read(imageUrl);
+                        } catch (MalformedURLException ex) {
+                            LOGGER.log(Level.WARNING, null, ex);
+                            return;
+                        } catch (IOException ex) {
+                            LOGGER.log(Level.WARNING, null, ex);
+                            return;
+                        }
+                    }
+
+                    // Path
+                    FileObject currentFile = getFileObject(doc);
+                    if (image == null && !imagePath.isEmpty()) {
+                        FileObject imageFile = currentFile.getFileObject(imagePath);
+                        if (imageFile == null) {
+                            return;
+                        }
+                        try {
+                            image = ImageIO.read(imageFile.getInputStream());
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                    if (image == null) {
+                        return;
+                    }
+
+                    // get value of width or height
+                    int value = 0;
+                    if (isHeight) {
+                        value = image.getHeight(null);
+                    } else if (isWidth) {
+                        value = image.getWidth(null);
+                    } else {
+                        // bug
+                    }
+                    resultSet.addItem(new HtmlEnhancementCompletionItem(String.valueOf(value), caretOffset, 0));
+                } finally {
+                    ad.readUnlock();
                     resultSet.finish();
-                    return;
                 }
-                int value = 0;
-                if (isHeight) {
-                    value = image.getHeight(null);
-                } else if (isWidth) {
-                    value = image.getWidth(null);
-                } else {
-                    // bug
-                }
-                resultSet.addItem(new HtmlEnhancementCompletionItem(String.valueOf(value), caretOffset, 0));
-                resultSet.finish();
             }
         }, component);
     }
@@ -203,7 +215,7 @@ public class ImageCompletionProvider implements CompletionProvider {
      * Create path For FileObject
      *
      * @param imagePath
-     * @return
+     * @return normalize path
      */
     protected String normalizeImagePath(String imagePath) {
         imagePath = imagePath.substring(1, imagePath.length() - 1);
@@ -221,6 +233,12 @@ public class ImageCompletionProvider implements CompletionProvider {
         return imagePath;
     }
 
+    /**
+     * Check whether attribute is width.
+     *
+     * @param text token text
+     * @return true if attribute is width, otherwise false.
+     */
     protected boolean isWidth(CharSequence text) {
         if (TokenUtilities.equals(text, "width")) { // NOI18N
             return true;
@@ -228,10 +246,27 @@ public class ImageCompletionProvider implements CompletionProvider {
         return false;
     }
 
+    /**
+     * Check whether attribute is height.
+     *
+     * @param text token text
+     * @return true if attribute is height, otherwise false.
+     */
     protected boolean isHeight(CharSequence text) {
         if (TokenUtilities.equals(text, "height")) { // NOI18N
             return true;
         }
         return false;
+    }
+
+    /**
+     * Get FileObject with Document.
+     *
+     * @param doc Document
+     * @return FileObject
+     */
+    private FileObject getFileObject(Document doc) {
+        Source source = Source.create(doc);
+        return source.getFileObject();
     }
 }

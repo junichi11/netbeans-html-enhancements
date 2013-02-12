@@ -48,12 +48,15 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
+import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.editor.indent.api.Reformat;
 import org.netbeans.modules.parsing.api.Source;
 import org.openide.awt.ActionID;
@@ -79,9 +82,10 @@ public final class InsertAsHtmlAction implements ActionListener {
 
     private static final String SLASH = "/"; // NOI18N
     private static final String PARENT = "../"; // NOI18N
-    private static final String IMG_TAG_FORMAT = "<img src=\"%s\" alt=\"\" width=\"%s\" height=\"%s\"/>"; // NOI18N
+    private static final String IMG_TAG_FORMAT = "<img src=\"%s\" alt=\"\" width=\"%s\" height=\"%s\" />"; // NOI18N
     private final List<DataObject> contexts;
     private static final Set<String> IMG_MIME_TYPES = new HashSet<String>();
+    private static final Logger LOGGER = Logger.getLogger(InsertAsHtmlAction.class.getName());
 
     static {
         IMG_MIME_TYPES.add("image/png"); // NOI18N
@@ -157,6 +161,9 @@ public final class InsertAsHtmlAction implements ActionListener {
             read = ImageIO.read(FileUtil.toFile(imageFile));
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
+        }
+        if (read == null) {
+            return null;
         }
         JTextComponent editor = getEditor();
         Document document = editor.getDocument();
@@ -251,14 +258,22 @@ public final class InsertAsHtmlAction implements ActionListener {
      * @param start
      * @param end
      */
-    private void reformat(Document document, int start, int end) {
+    private void reformat(Document document, final int start, final int end) {
+        final BaseDocument baseDoc = (BaseDocument) document;
+        final Reformat reformat = Reformat.get(baseDoc);
         // reformat
-        Reformat reformat = Reformat.get(document);
         reformat.lock();
         try {
-            reformat.reformat(start, end);
-        } catch (BadLocationException ex) {
-            Exceptions.printStackTrace(ex);
+            baseDoc.runAtomic(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        reformat.reformat(start, end);
+                    } catch (BadLocationException ex) {
+                        LOGGER.log(Level.WARNING, null, ex);
+                    }
+                }
+            });
         } finally {
             reformat.unlock();
         }
