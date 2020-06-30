@@ -45,6 +45,8 @@ import com.junichi11.netbeans.modules.html.enhancements.editor.EditorSupport;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.text.BadLocationException;
@@ -56,7 +58,7 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.cookies.EditorCookie;
-import org.openide.util.Exceptions;
+import org.openide.text.NbDocument;
 import org.openide.util.NbBundle.Messages;
 
 @ActionID(
@@ -69,6 +71,9 @@ import org.openide.util.NbBundle.Messages;
 public final class UpdateImageSizeAction implements ActionListener {
 
     private final EditorCookie context;
+    private static final String SRC_GROUP = "src"; // NOI18N
+    private static final Pattern IMAGE_TAG_PATTERN = Pattern.compile("<img.*?src=([\"\\'])(?<src>.+?)\\1.*?>", Pattern.DOTALL); // NOI18N
+    private static final Logger LOGGER = Logger.getLogger(UpdateImageSizeAction.class.getName());
 
     public UpdateImageSizeAction(EditorCookie context) {
         this.context = context;
@@ -77,7 +82,11 @@ public final class UpdateImageSizeAction implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent ev) {
         StyledDocument document = context.getDocument();
-        JTextComponent editor = EditorRegistry.focusedComponent();
+        JTextComponent editor = EditorRegistry.findComponent(document);
+        updateImageSize(editor, document);
+    }
+
+    void updateImageSize(JTextComponent editor, StyledDocument document) {
         Caret caret = editor.getCaret();
         int offset = caret.getDot();
         try {
@@ -86,32 +95,31 @@ public final class UpdateImageSizeAction implements ActionListener {
             if (imgTag == null || imgTag.isEmpty()) {
                 return;
             }
-            Pattern pattern = Pattern.compile("<img.*?src=([\"\\'])(.+?)\\1.*?>"); // NOI18N
-            Matcher matcher = pattern.matcher(imgTag);
-            String src = "";
+            Matcher matcher = IMAGE_TAG_PATTERN.matcher(imgTag);
+            String src = ""; // NOI18N
             if (matcher.find()) {
-                src = matcher.group(2);
+                src = matcher.group(SRC_GROUP);
             }
             if (src.isEmpty()) {
                 return;
             }
             Image image = EditorSupport.getImage(src, document);
-
             if (image == null) {
                 return;
             }
             String update = updateImgTag(imgTag, image.getWidth(null), image.getHeight(null));
             int[] imgRange = EditorSupport.getImgRange(document, offset);
-
-            // remove
-            document.remove(imgRange[0], imgTag.length());
-
-            // insert
-            document.insertString(imgRange[0], update, null);
+            NbDocument.runAtomicAsUser(document, () -> {
+                try {
+                    document.remove(imgRange[0], imgTag.length());
+                    document.insertString(imgRange[0], update, null);
+                } catch (BadLocationException ex) {
+                    LOGGER.log(Level.WARNING, "Invalid offset: {0}", ex.offsetRequested()); // NOI18N
+                }
+            });
         } catch (BadLocationException ex) {
-            Exceptions.printStackTrace(ex);
+            LOGGER.log(Level.WARNING, "Invalid offset: {0}", ex.offsetRequested()); // NOI18N
         }
-
     }
 
     private String updateImgTag(String target, int width, int height) {

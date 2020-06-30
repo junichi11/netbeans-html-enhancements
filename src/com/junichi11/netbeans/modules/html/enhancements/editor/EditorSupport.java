@@ -50,7 +50,9 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.modules.parsing.api.Source;
+import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.modules.csl.spi.GsfUtilities;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -58,9 +60,12 @@ import org.openide.filesystems.FileUtil;
  *
  * @author junichi11
  */
-public class EditorSupport {
+public final class EditorSupport {
 
     private static final Logger LOGGER = Logger.getLogger(EditorSupport.class.getName());
+
+    private EditorSupport() {
+    }
 
     /**
      * Get img tag range.
@@ -80,7 +85,7 @@ public class EditorSupport {
                 break;
             }
             String text = doc.getText(start - 1, 1);
-            if (text.equals("\n") || text.equals(">")) { // NOI18N
+            if (text.equals(">")) { // NOI18N
                 return null;
             }
             start--;
@@ -92,8 +97,7 @@ public class EditorSupport {
             if (doc.getText(offset, end - offset).endsWith("/>")) { // NOI18N
                 break;
             }
-            String text = doc.getText(end, 1);
-            if (text.equals("\n") || end == last) { // NOI18N
+            if (end == last) {
                 return null;
             }
             end++;
@@ -144,6 +148,7 @@ public class EditorSupport {
      * @return text
      * @throws BadLocationException
      */
+    @CheckForNull
     public static String getTextAsLine(Document doc, int offset) throws BadLocationException {
         int[] range = getLineRange(doc, offset);
         if (range == null || range.length != 2) {
@@ -161,6 +166,7 @@ public class EditorSupport {
      * @return img tag text
      * @throws BadLocationException
      */
+    @CheckForNull
     public static String getImgTag(Document doc, int offset) throws BadLocationException {
         int[] range = getImgRange(doc, offset);
         if (range == null || range.length != 2) {
@@ -177,8 +183,7 @@ public class EditorSupport {
      * @return FileObject
      */
     public static FileObject getFileObject(Document doc) {
-        Source source = Source.create(doc);
-        return source.getFileObject();
+        return GsfUtilities.findFileObject(doc);
     }
 
     /**
@@ -187,9 +192,9 @@ public class EditorSupport {
      * @param path
      * @return relative path
      */
-    public static String normalizePath(String path) {
-        if (path == null || path.isEmpty()) {
-            return null;
+    public static String normalizePath(@NonNull String path) {
+        if (path.isEmpty()) {
+            return path;
         }
         if (path.startsWith("./")) { // NOI18N
             path = "." + path; // NOI18N
@@ -206,6 +211,7 @@ public class EditorSupport {
      * @param doc
      * @return Image
      */
+    @CheckForNull
     public static Image getImage(String path, Document doc) {
         if (path == null || path.isEmpty()) {
             return null;
@@ -217,11 +223,10 @@ public class EditorSupport {
                 return ImageIO.read(new URL(path));
             } catch (MalformedURLException ex) {
                 LOGGER.log(Level.WARNING, null, ex);
-                return null;
             } catch (IOException ex) {
                 LOGGER.log(Level.WARNING, null, ex);
-                return null;
             }
+            return null;
         }
 
         // relative path
@@ -238,7 +243,7 @@ public class EditorSupport {
             return ImageIO.read(FileUtil.toFile(target));
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, null, ex);
-            return null;
         }
+        return null;
     }
 }
