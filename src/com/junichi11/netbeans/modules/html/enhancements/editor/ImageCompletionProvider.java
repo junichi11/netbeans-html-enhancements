@@ -215,7 +215,7 @@ public class ImageCompletionProvider implements CompletionProvider {
      * Create path For FileObject
      *
      * @param imagePath
-     * @return normalize path
+     * @return normalized path
      */
     protected String normalizeImagePath(String imagePath) {
         imagePath = imagePath.substring(1, imagePath.length() - 1);
@@ -240,10 +240,7 @@ public class ImageCompletionProvider implements CompletionProvider {
      * @return true if attribute is width, otherwise false.
      */
     protected boolean isWidth(CharSequence text) {
-        if (TokenUtilities.equals(text, "width")) { // NOI18N
-            return true;
-        }
-        return false;
+        return TokenUtilities.equals(text, "width"); // NOI18N
     }
 
     /**
@@ -253,10 +250,7 @@ public class ImageCompletionProvider implements CompletionProvider {
      * @return true if attribute is height, otherwise false.
      */
     protected boolean isHeight(CharSequence text) {
-        if (TokenUtilities.equals(text, "height")) { // NOI18N
-            return true;
-        }
-        return false;
+        return TokenUtilities.equals(text, "height"); // NOI18N
     }
 
     /**

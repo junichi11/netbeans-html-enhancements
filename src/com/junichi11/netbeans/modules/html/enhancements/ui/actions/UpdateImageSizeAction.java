@@ -80,10 +80,9 @@ public final class UpdateImageSizeAction implements ActionListener {
         JTextComponent editor = EditorRegistry.focusedComponent();
         Caret caret = editor.getCaret();
         int offset = caret.getDot();
-        String imgTag = ""; // NOI18N
         try {
             // get src path
-            imgTag = EditorSupport.getImgTag(document, offset);
+            String imgTag = EditorSupport.getImgTag(document, offset);
             if (imgTag == null || imgTag.isEmpty()) {
                 return;
             }

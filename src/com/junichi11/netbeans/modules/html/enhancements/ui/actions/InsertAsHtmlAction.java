@@ -181,8 +181,7 @@ public final class InsertAsHtmlAction implements ActionListener {
      * @return realative path
      */
     private String getRelativePath(FileObject from, FileObject to) {
-        String relativePath = null;
-        relativePath = FileUtil.getRelativePath(from.getParent(), to);
+        String relativePath = FileUtil.getRelativePath(from.getParent(), to);
         if (relativePath != null) {
             return relativePath;
         }
@@ -190,10 +189,9 @@ public final class InsertAsHtmlAction implements ActionListener {
         String toPath = to.getPath();
         String[] fromSplit = fromPath.split(SLASH);
         String[] toSplit = toPath.split(SLASH);
-        int minLength = 0;
         int fromLength = fromSplit.length;
         int toLength = toSplit.length;
-        minLength = Math.min(fromLength, toLength);
+        int minLength = Math.min(fromLength, toLength);
         int diffPosition = 0;
         for (int i = 0; i < minLength; i++) {
             if (!fromSplit[i].equals(toSplit[i])) {
