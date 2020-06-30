@@ -1,22 +1,25 @@
 # About
-This is NetBeans Plugin
+
+This is NetBeans Plugin for small HTML features.
 
 ## Features
 
-- width and height completion for img tag
+- width and height completion for a `img` tag
 - insert as HTML action
 - update image size action
 
 ### Width And Height Completion for img Tag
+
 You must write src attribute before with and height attributes.
 
 ```html
 <img src="../../../assets/img/pic.png" width="[ctrl + space]" height="200"/>
 <img src="http://junichi11.com/foo/img/pic.jpg" width="[ctrl + space]" />
 ```
-If don't work well, please, push esc key.
+If don't work well, please, push <kbd>esc</kbd> key.
 
 ### Insert As HTML Action (Image files)
+
 Support for multiple image files.
 
 1. move caret to position that you want to insert on Editor
@@ -29,9 +32,11 @@ Support for multiple image files.
 ```
 
 ### Update Image Size Action
-You can update/insert image size(width/height) of img tag.  
-Default shortcut is `Ctrl + Alt + U`  
-If you would like to change shortcut, Please search "Update" on KeyMap Option(Tools > Options > KeyMap)
+
+You can update/insert image size(width/height) of a img tag.  
+Default shortcut is <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>U</kbd>.  
+If you would like to change shortcut, Please search "Update" on KeyMap Option(Tools > Options > KeyMap).
 
 ## License
+
 [Common Development and Distribution License (CDDL) v1.0 and GNU General Public License (GPL) v2](http://netbeans.org/cddl-gplv2.html)
