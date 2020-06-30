@@ -71,7 +71,7 @@ import org.openide.util.NbBundle.Messages;
 
 @ActionID(
     category = "Edit",
-    id = "com.junichi11.netbeans.html.enhancement.ui.actions.InsertAsHtmlAction")
+    id = "com.junichi11.netbeans.modules.html.enhancements.ui.actions.InsertAsHtmlAction")
 @ActionRegistration(displayName = "#CTL_InsertAsHtmlAction")
 @ActionReferences({
     @ActionReference(path = "Menu/Edit", position = 1470),

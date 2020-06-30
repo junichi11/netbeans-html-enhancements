@@ -63,7 +63,7 @@ import org.openide.util.NbBundle.Messages;
 
 @ActionID(
         category = "XML",
-        id = "com.junichi11.netbeans.html.enhancement.ui.actions.UpdateImageSizeAction")
+        id = "com.junichi11.netbeans.modules.html.enhancements.ui.actions.UpdateImageSizeAction")
 @ActionRegistration(
         displayName = "#CTL_UpdateImageSizeAction")
 @ActionReference(path = "Shortcuts", name = "AD-U")
