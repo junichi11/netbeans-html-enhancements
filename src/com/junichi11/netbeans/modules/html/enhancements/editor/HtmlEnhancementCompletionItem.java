@@ -39,7 +39,7 @@
  *
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.html.enhancement.editor;
+package com.junichi11.netbeans.modules.html.enhancements.editor;
 
 import java.awt.Color;
 import java.awt.Font;

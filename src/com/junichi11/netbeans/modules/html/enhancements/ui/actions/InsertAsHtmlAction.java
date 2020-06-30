@@ -39,7 +39,7 @@
  *
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.html.enhancement.ui.actions;
+package com.junichi11.netbeans.modules.html.enhancements.ui.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
