@@ -51,6 +51,7 @@ import javax.imageio.ImageIO;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.editor.mimelookup.MimeRegistrations;
 import org.netbeans.api.html.lexer.HTMLTokenId;
@@ -58,7 +59,7 @@ import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.lexer.TokenUtilities;
-import org.netbeans.modules.parsing.api.Source;
+import org.netbeans.modules.csl.spi.GsfUtilities;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
@@ -151,7 +152,7 @@ public class ImageCompletionProvider implements CompletionProvider {
 
                     // Path
                     FileObject currentFile = getFileObject(doc);
-                    if (image == null && !imagePath.isEmpty()) {
+                    if (currentFile != null && image == null && !imagePath.isEmpty()) {
                         FileObject imageFile = currentFile.getFileObject(imagePath);
                         if (imageFile == null) {
                             return;
@@ -259,8 +260,8 @@ public class ImageCompletionProvider implements CompletionProvider {
      * @param doc Document
      * @return FileObject
      */
+    @CheckForNull
     private FileObject getFileObject(Document doc) {
-        Source source = Source.create(doc);
-        return source.getFileObject();
+        return GsfUtilities.findFileObject(doc);
     }
 }
