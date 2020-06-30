@@ -61,11 +61,11 @@ import org.openide.util.Exceptions;
  */
 public class HtmlEnhancementCompletionItem implements CompletionItem {
 
-    private String text;
-    private static ImageIcon fieldIcon = new ImageIcon(); // NOI18N
-    private static Color fieldColor = Color.decode("0x0000B2"); // NOI18N
-    private int startOffset;
-    private int removeLength;
+    private final String text;
+    private static final ImageIcon FIELD_ICON = new ImageIcon(); // NOI18N
+    private static final Color FIELD_COLOR = Color.decode("0x0000B2"); // NOI18N
+    private final int startOffset;
+    private final int removeLength;
 
     HtmlEnhancementCompletionItem(String text, int startOffset, int removeLength) {
         this.text = text;
@@ -96,7 +96,7 @@ public class HtmlEnhancementCompletionItem implements CompletionItem {
 
     @Override
     public void render(Graphics grphcs, Font font, Color color, Color color1, int width, int height, boolean selected) {
-        CompletionUtilities.renderHtml(fieldIcon, text, null, grphcs, font, (selected ? Color.white : fieldColor), width, height, selected);
+        CompletionUtilities.renderHtml(FIELD_ICON, text, null, grphcs, font, (selected ? Color.white : FIELD_COLOR), width, height, selected);
     }
 
     @Override
