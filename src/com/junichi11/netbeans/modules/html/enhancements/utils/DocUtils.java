@@ -52,6 +52,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.GsfUtilities;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -75,7 +76,7 @@ public final class DocUtils {
      * @return range array if exists img tag, otherwise null
      * @throws BadLocationException
      */
-    public static int[] getImgRange(Document doc, int offset) throws BadLocationException {
+    public static OffsetRange getImgRange(Document doc, int offset) throws BadLocationException {
         int start = offset;
         int end = offset;
 
@@ -86,7 +87,7 @@ public final class DocUtils {
             }
             String text = doc.getText(start - 1, 1);
             if (text.equals(">")) { // NOI18N
-                return null;
+                return OffsetRange.NONE;
             }
             start--;
         }
@@ -98,12 +99,12 @@ public final class DocUtils {
                 break;
             }
             if (end == last) {
-                return null;
+                return OffsetRange.NONE;
             }
             end++;
         }
 
-        return new int[]{start, end};
+        return new OffsetRange(start, end);
     }
 
     /**
@@ -114,7 +115,7 @@ public final class DocUtils {
      * @return line range array
      * @throws BadLocationException
      */
-    public static int[] getLineRange(Document doc, int offset) throws BadLocationException {
+    public static OffsetRange getLineRange(Document doc, int offset) throws BadLocationException {
         int lineStart = offset;
         int lineEnd = offset;
 
@@ -137,7 +138,7 @@ public final class DocUtils {
             lineEnd++;
         }
 
-        return new int[]{lineStart, lineEnd};
+        return new OffsetRange(lineStart, lineEnd);
     }
 
     /**
@@ -150,12 +151,12 @@ public final class DocUtils {
      */
     @CheckForNull
     public static String getTextAsLine(Document doc, int offset) throws BadLocationException {
-        int[] range = getLineRange(doc, offset);
-        if (range == null || range.length != 2) {
+        OffsetRange range = getLineRange(doc, offset);
+        if (range == OffsetRange.NONE) {
             return null;
         }
 
-        return doc.getText(range[0], range[1] - range[0]);
+        return doc.getText(range.getStart(), range.getLength());
     }
 
     /**
@@ -168,12 +169,12 @@ public final class DocUtils {
      */
     @CheckForNull
     public static String getImgTag(Document doc, int offset) throws BadLocationException {
-        int[] range = getImgRange(doc, offset);
-        if (range == null || range.length != 2) {
+        OffsetRange range = getImgRange(doc, offset);
+        if (range == OffsetRange.NONE) {
             return null;
         }
 
-        return doc.getText(range[0], range[1] - range[0]);
+        return doc.getText(range.getStart(), range.getLength());
     }
 
     /**

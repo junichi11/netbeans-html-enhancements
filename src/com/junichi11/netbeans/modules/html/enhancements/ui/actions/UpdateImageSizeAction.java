@@ -54,6 +54,7 @@ import javax.swing.text.Caret;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.editor.EditorRegistry;
+import org.netbeans.modules.csl.api.OffsetRange;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -108,15 +109,17 @@ public final class UpdateImageSizeAction implements ActionListener {
                 return;
             }
             String update = updateImgTag(imgTag, image.getWidth(null), image.getHeight(null));
-            int[] imgRange = DocUtils.getImgRange(document, offset);
-            NbDocument.runAtomicAsUser(document, () -> {
-                try {
-                    document.remove(imgRange[0], imgTag.length());
-                    document.insertString(imgRange[0], update, null);
-                } catch (BadLocationException ex) {
-                    LOGGER.log(Level.WARNING, "Invalid offset: {0}", ex.offsetRequested()); // NOI18N
-                }
-            });
+            OffsetRange imgRange = DocUtils.getImgRange(document, offset);
+            if (imgRange != OffsetRange.NONE) {
+                NbDocument.runAtomicAsUser(document, () -> {
+                    try {
+                        document.remove(imgRange.getStart(), imgTag.length());
+                        document.insertString(imgRange.getStart(), update, null);
+                    } catch (BadLocationException ex) {
+                        LOGGER.log(Level.WARNING, "Invalid offset: {0}", ex.offsetRequested()); // NOI18N
+                    }
+                });
+            }
         } catch (BadLocationException ex) {
             LOGGER.log(Level.WARNING, "Invalid offset: {0}", ex.offsetRequested()); // NOI18N
         }
