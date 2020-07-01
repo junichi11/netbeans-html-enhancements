@@ -41,7 +41,7 @@
  */
 package com.junichi11.netbeans.modules.html.enhancements.ui.actions;
 
-import com.junichi11.netbeans.modules.html.enhancements.editor.EditorSupport;
+import com.junichi11.netbeans.modules.html.enhancements.utils.DocUtils;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -91,7 +91,7 @@ public final class UpdateImageSizeAction implements ActionListener {
         int offset = caret.getDot();
         try {
             // get src path
-            String imgTag = EditorSupport.getImgTag(document, offset);
+            String imgTag = DocUtils.getImgTag(document, offset);
             if (imgTag == null || imgTag.isEmpty()) {
                 return;
             }
@@ -103,12 +103,12 @@ public final class UpdateImageSizeAction implements ActionListener {
             if (src.isEmpty()) {
                 return;
             }
-            Image image = EditorSupport.getImage(src, document);
+            Image image = DocUtils.getImage(src, document);
             if (image == null) {
                 return;
             }
             String update = updateImgTag(imgTag, image.getWidth(null), image.getHeight(null));
-            int[] imgRange = EditorSupport.getImgRange(document, offset);
+            int[] imgRange = DocUtils.getImgRange(document, offset);
             NbDocument.runAtomicAsUser(document, () -> {
                 try {
                     document.remove(imgRange[0], imgTag.length());

@@ -39,7 +39,7 @@
  *
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.modules.html.enhancements.editor;
+package com.junichi11.netbeans.modules.html.enhancements.utils;
 
 import java.awt.Image;
 import java.io.IOException;
@@ -60,11 +60,11 @@ import org.openide.filesystems.FileUtil;
  *
  * @author junichi11
  */
-public final class EditorSupport {
+public final class DocUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(EditorSupport.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DocUtils.class.getName());
 
-    private EditorSupport() {
+    private DocUtils() {
     }
 
     /**
@@ -192,7 +192,7 @@ public final class EditorSupport {
      * @param path
      * @return relative path
      */
-    public static String normalizePath(@NonNull String path) {
+    private static String normalizePath(@NonNull String path) {
         if (path.isEmpty()) {
             return path;
         }
