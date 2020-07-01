@@ -37,6 +37,10 @@ You can update/insert image size(width/height) of a img tag.
 Default shortcut is <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>U</kbd>.  
 If you would like to change shortcut, Please search "Update" on KeyMap Option(Tools > Options > KeyMap).
 
+## Donation
+
+<a href="https://github.com/sponsors/junichi11">https://github.com/sponsors/junichi11</a>
+
 ## License
 
-[Common Development and Distribution License (CDDL) v1.0 and GNU General Public License (GPL) v2](http://netbeans.org/cddl-gplv2.html)
+[Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
