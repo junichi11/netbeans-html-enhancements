@@ -37,6 +37,7 @@ import org.openide.filesystems.FileUtil;
  */
 public final class DocUtils {
 
+    private static final String IMG_TAG_START = "<img "; // NOI18N
     private static final Logger LOGGER = Logger.getLogger(DocUtils.class.getName());
 
     private DocUtils() {
@@ -53,10 +54,13 @@ public final class DocUtils {
     public static OffsetRange getImgRange(Document doc, int offset) throws BadLocationException {
         int start = offset;
         int end = offset;
+        final int last = doc.getLength();
 
         // start position
         while (start - 1 > 0) {
-            if (doc.getText(start, offset - start).startsWith("<img")) { // NOI18N
+            if ((last - start >= IMG_TAG_START.length())
+                    && start != offset
+                    && doc.getText(start, IMG_TAG_START.length()).startsWith(IMG_TAG_START)) {
                 break;
             }
             String text = doc.getText(start - 1, 1);
@@ -67,9 +71,8 @@ public final class DocUtils {
         }
 
         // end position
-        int last = doc.getLength();
         while (end <= last) {
-            if (doc.getText(offset, end - offset).endsWith("/>")) { // NOI18N
+            if (doc.getText(offset, end - offset).endsWith(">")) { // NOI18N
                 break;
             }
             if (end == last) {
@@ -105,6 +108,7 @@ public final class DocUtils {
      * @param doc Document
      * @return FileObject
      */
+    @CheckForNull
     public static FileObject getFileObject(Document doc) {
         return GsfUtilities.findFileObject(doc);
     }
