@@ -108,58 +108,6 @@ public final class DocUtils {
     }
 
     /**
-     * Get current line range
-     *
-     * @param doc Document
-     * @param offset caret positon
-     * @return line range array
-     * @throws BadLocationException
-     */
-    public static OffsetRange getLineRange(Document doc, int offset) throws BadLocationException {
-        int lineStart = offset;
-        int lineEnd = offset;
-
-        // start position
-        while (lineStart - 1 > 0) {
-            String text = doc.getText(lineStart - 1, 1);
-            if (text.equals("\n")) { // NOI18N
-                break;
-            }
-            lineStart--;
-        }
-
-        // end position
-        int last = doc.getLength();
-        while (lineEnd <= last) {
-            String text = doc.getText(lineEnd + 1, 1);
-            if (text.equals("\n") || lineEnd == last) { // NOI18N
-                break;
-            }
-            lineEnd++;
-        }
-
-        return new OffsetRange(lineStart, lineEnd);
-    }
-
-    /**
-     * Get text as line
-     *
-     * @param doc Document
-     * @param offset caret position
-     * @return text
-     * @throws BadLocationException
-     */
-    @CheckForNull
-    public static String getTextAsLine(Document doc, int offset) throws BadLocationException {
-        OffsetRange range = getLineRange(doc, offset);
-        if (range == OffsetRange.NONE) {
-            return null;
-        }
-
-        return doc.getText(range.getStart(), range.getLength());
-    }
-
-    /**
      * Get img tag text
      *
      * @param doc Document
