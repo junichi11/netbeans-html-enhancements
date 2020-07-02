@@ -1,6 +1,6 @@
 # About
 
-This is NetBeans Plugin for small HTML features.
+This is a NetBeans Plugin for small HTML features.
 
 ## Features
 
@@ -18,7 +18,7 @@ You must write src attribute before with and height attributes.
 ```
 If don't work well, please, push <kbd>esc</kbd> key.
 
-### Insert As HTML Action (Image files)
+### Insert as HTML Action (Image files)
 
 Support for multiple image files.
 
