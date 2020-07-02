@@ -15,6 +15,7 @@
  */
 package com.junichi11.netbeans.modules.html.enhancements.ui.actions;
 
+import com.junichi11.netbeans.modules.html.enhancements.utils.DocUtils;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -26,13 +27,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.editor.indent.api.Reformat;
-import org.netbeans.modules.parsing.api.Source;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -40,7 +39,6 @@ import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
 
 @ActionID(
@@ -79,12 +77,29 @@ public final class InsertAsHtmlAction implements ActionListener {
             return;
         }
 
+        String imgTag = buildImgTags();
+        int offset = editor.getCaret().getDot();
+        Document document = editor.getDocument();
+        try {
+            document.insertString(offset, imgTag, null);
+        } catch (BadLocationException ex) {
+            LOGGER.log(Level.WARNING, "Invalid offset: {0}", ex.offsetRequested());
+        }
+
+        int stringCount = imgTag.length();
+        if (stringCount == 0) {
+            return;
+        }
+        reformat(document, offset, offset + stringCount);
+    }
+
+    private String buildImgTags() {
         StringBuilder sb = new StringBuilder();
         boolean isMulti = false;
         for (DataObject context : contexts) {
             FileObject imageFile = context.getPrimaryFile();
             if (imageFile == null) {
-                return;
+                break;
             }
             if (!isImage(imageFile)) {
                 continue;
@@ -95,22 +110,7 @@ public final class InsertAsHtmlAction implements ActionListener {
             sb.append(createImgTag(imageFile));
             isMulti = true;
         }
-        Document document = editor.getDocument();
-        String imgTag = sb.toString();
-        Caret caret = editor.getCaret();
-        int offset = caret.getDot();
-
-        try {
-            document.insertString(offset, imgTag, null);
-        } catch (BadLocationException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-
-        int stringCount = imgTag.length();
-        if (stringCount == 0) {
-            return;
-        }
-        reformat(document, offset, offset + stringCount);
+        return sb.toString();
     }
 
     /**
@@ -134,14 +134,13 @@ public final class InsertAsHtmlAction implements ActionListener {
         try {
             read = ImageIO.read(FileUtil.toFile(imageFile));
         } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
+            LOGGER.log(Level.WARNING, null, ex);
         }
         if (read == null) {
             return null;
         }
-        JTextComponent editor = getEditor();
-        Document document = editor.getDocument();
-        FileObject fileObject = Source.create(document).getFileObject();
+        Document document = getEditor().getDocument();
+        FileObject fileObject = DocUtils.getFileObject(document);
         String relativePath = getRelativePath(fileObject, imageFile);
 
         return String.format(IMG_TAG_FORMAT, relativePath, read.getWidth(), read.getHeight());
@@ -236,14 +235,11 @@ public final class InsertAsHtmlAction implements ActionListener {
         // reformat
         reformat.lock();
         try {
-            baseDoc.runAtomic(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        reformat.reformat(start, end);
-                    } catch (BadLocationException ex) {
-                        LOGGER.log(Level.WARNING, null, ex);
-                    }
+            baseDoc.runAtomic(() -> {
+                try {
+                    reformat.reformat(start, end);
+                } catch (BadLocationException ex) {
+                    LOGGER.log(Level.WARNING, null, ex);
                 }
             });
         } finally {
