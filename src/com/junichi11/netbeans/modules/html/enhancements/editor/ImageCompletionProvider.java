@@ -136,7 +136,7 @@ public class ImageCompletionProvider implements CompletionProvider {
                 if (image == null) {
                     return;
                 }
-                resultSet.addItem(new HtmlEnhancementCompletionItem(getImageSize(image, imgAttr), caretOffset, 0));
+                resultSet.addItem(new ImageSizeCompletionItem(getImageSize(image, imgAttr), caretOffset, 0));
             } finally {
                 ad.readUnlock();
                 resultSet.finish();
