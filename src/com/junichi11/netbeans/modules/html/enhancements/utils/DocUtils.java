@@ -37,6 +37,9 @@ import org.openide.filesystems.FileUtil;
  */
 public final class DocUtils {
 
+    public static final String HTML_MIME_TYPE = "text/html"; // NOI18N
+    public static final String PHP_MIME_TYPE = "text/x-php5"; // NOI18N
+
     private static final String IMG_TAG_START = "<img "; // NOI18N
     private static final Logger LOGGER = Logger.getLogger(DocUtils.class.getName());
 

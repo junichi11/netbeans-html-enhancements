@@ -99,7 +99,7 @@ public final class UpdateImageSizeAction implements ActionListener {
         }
     }
 
-    private String updateImgTag(String target, int width, int height) {
+    static String updateImgTag(String target, int width, int height) {
         if (!target.endsWith(" />")) { // NOI18N
             target = target.replace("/>", " />"); // NOI18N
         }
