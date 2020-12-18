@@ -31,7 +31,6 @@ import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.lexer.TokenUtilities;
-import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.editor.completion.CompletionTask;
@@ -75,11 +74,11 @@ public class ImageCompletionProvider implements CompletionProvider {
         TokenHierarchy<Document> hierarchy = TokenHierarchy.get(doc);
         TokenSequence<HTMLTokenId> ts = hierarchy.tokenSequence(HTMLTokenId.language());
         if (ts == null) {
-            TokenSequence<PHPTokenId> phpTs = hierarchy.tokenSequence(PHPTokenId.language());
-            if (phpTs != null) {
-                phpTs.move(caretOffset);
-                phpTs.moveNext();
-                ts = phpTs.embedded(HTMLTokenId.language());
+            TokenSequence<?> tokenSequence = hierarchy.tokenSequence();
+            if (tokenSequence != null) {
+                tokenSequence.move(caretOffset);
+                tokenSequence.moveNext();
+                ts = tokenSequence.embedded(HTMLTokenId.language());
             }
         }
         return ts;
